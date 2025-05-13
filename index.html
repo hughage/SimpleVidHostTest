@@ -18,19 +18,32 @@
     </style>
 </head>
 <body>
-    <video id="brandVideo" playsinline autoplay muted>
-        <source src="your-video.mp4" type="video/mp4">
+    <video id="brandVideo" playsinline autoplay muted loop>
+        <source src="video.mp4" type="video/mp4">
         Your browser does not support the video tag.
     </video>
     <script>
         const video = document.getElementById('brandVideo');
-        video.addEventListener('click', () => {
-            if (video.paused) {
-                video.play();
-            } else {
-                video.pause();
-            }
+        let controlsTimeout = null;
+
+        // Ensure autoplay starts muted and catches promise rejection quietly
+        video.play().catch(err => {
+            console.log('Autoplay blocked, waiting for user interaction');
         });
+
+        function hideControls() {
+            video.removeAttribute('controls');
+        }
+
+        function showControlsTemporarily() {
+            video.setAttribute('controls', 'controls');
+            clearTimeout(controlsTimeout);
+            controlsTimeout = setTimeout(hideControls, 3000);
+        }
+
+        // Only manage controls visibility, don't toggle play/pause unless wanted
+        video.addEventListener('touchstart', showControlsTemporarily);
+        video.addEventListener('mousemove', showControlsTemporarily);
     </script>
 </body>
 </html>
